@@ -1,72 +1,208 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, Image, ScrollView } from 'react-native';
+// import mqttConnection from '../utils/mqttConnection'
+import React, { useState, useEffect } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+// import axios from 'axios';
 
-export const sensorDevice = [
-    {
-        label: 'Temperature',
-        value: 70,
-        unit: '°C',
-        icon: 'thermometer',
-    },
-    {
-        label: 'Humidity',
-        value: 70,
-        unit: '%',
-        icon: 'water'
-    },
-    {
-        label: 'Soil',
-        value: 70,
-        unit: 'rH',
-        icon: 'leaf'
-    },
-    {
-        label: 'Light',
-        value: 70,
-        unit: 'lx',
-        icon: 'brightness-6'
-    }
-]
+// import Speedometer from 'react-native-speedometer-chart';
+
+// import { Gauge } from 'react-native-svg-charts';
 
 const SensorScreen = () => {
-    return (
-        <ScrollView>
-            <View style={styles.container}>
-                {
-                    sensorDevice.map(item => (
-                        <View style={styles.sensorContainer}>
-                            <View style={styles.sensorIconContainer}>
-                                <Icon name={item.icon} size={30} />
-                            </View>
-                            <Text style={styles.sensorName}>{item.label}</Text>
-                            <Text style={styles.sensorValue}>{item.value}{item.unit}</Text>
-                        </View>
-                    ))
-                }
+    const [selectedNode, setSelectedNode] = useState('Node1')
+    const [selectedSensor, setSelectedSensor] = useState('temperature');
 
+    const handleSensorSelection = (sensor) => {
+        setSelectedSensor(sensor);
+    };
+    console.log("hello")
+
+    const [sensorValue, setSensorValue] = useState("")
+    // useEffect(() => {
+    //     mqttConnection.subscribe('sensor', 0);
+    //     mqttConnection.on('message', (message) => {
+    //         setSensorValue(message);
+    //         console.log(message)
+    //     });
+    
+    //     return () => {
+    //       mqttConnection.unsubscribe('sensor');
+    //     };
+    //   }, []);
+    
+    // const fetchData = async () => {
+    //     try {
+    //         const response = await axios.get(
+    //             'https://io.adafruit.com/api/v2/thinhdanghcmut/feeds/bbc-humi/data/last',
+    //             {
+    //                 headers: {
+    //                     'X-AIO-Key': 'aio_JXrb465t3g2aYwuXuxhJPp4uCq1r',
+    //                 },
+    //             },
+    //         );
+    //         console.log(response.data.value)
+    //         setSensorValue(response.data.value);
+    //     } catch (error) {
+    //         console.error(error);
+    //     }
+    // };
+    // useEffect(() => {
+    //     fetchData();
+    //     const intervalId = setInterval(fetchData, 5000); // Fetch data every 5 seconds
+    //     return () => clearInterval(intervalId);
+    // }, []);
+
+
+    // const getSensorValue = () => {
+    //     switch (selectedSensor) {
+    //         case 'temperature':
+    //             return 22;
+    //         case 'humidity':
+    //             return 45;
+    //         case 'soil':
+    //             return 70;
+    //         case 'light':
+    //             return 80;
+    //         default:
+    //             return 0;
+    //     }
+    // };
+
+    return (
+        <View style={styles.container}>
+            <View style={styles.buttonContainer}>
+                <TouchableOpacity
+                    style={[
+                        styles.sensorButton,
+                        selectedNode === 'Node1' && styles.selectedButton,
+                    ]}
+                    onPress={() => setSelectedNode('Node1')}
+                >
+                    <Text style={styles.sensorButtonText}>Node 1</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    style={[
+                        styles.sensorButton,
+                        selectedNode === 'Node2' && styles.selectedButton,
+                    ]}
+                    onPress={() => setSelectedNode('Node2')}
+                >
+                    <Text style={styles.sensorButtonText}>Node 2</Text>
+                </TouchableOpacity>
             </View>
-        </ScrollView>
+            <View style={styles.buttonContainer}>
+                <TouchableOpacity
+                    style={[
+                        styles.sensorButton,
+                        selectedSensor === 'temperature' && styles.selectedButton,
+                    ]}
+                    onPress={() => handleSensorSelection('temperature')}
+                >
+
+                    <Icon name='thermometer' size={30} />
+
+                </TouchableOpacity>
+                <TouchableOpacity
+                    style={[
+                        styles.sensorButton,
+                        selectedSensor === 'humidity' && styles.selectedButton,
+                    ]}
+                    onPress={() => handleSensorSelection('humidity')}
+                >
+                    <Icon name='water' size={30} />
+                </TouchableOpacity>
+                <TouchableOpacity
+                    style={[
+                        styles.sensorButton,
+                        selectedSensor === 'soil' && styles.selectedButton,
+                    ]}
+                    onPress={() => handleSensorSelection('soil')}
+                >
+                    <Icon name='leaf' size={30} />
+                </TouchableOpacity>
+                <TouchableOpacity
+                    style={[
+                        styles.sensorButton,
+                        selectedSensor === 'light' && styles.selectedButton,
+                    ]}
+                    onPress={() => handleSensorSelection('light')}
+                >
+                    <Icon name='brightness-6' size={30} />
+                </TouchableOpacity>
+            </View>
+            {selectedNode === 'Node1' && <View style={styles.valueContainer}>
+                {selectedSensor === 'temperature' && (
+                    <Text style={styles.sensorValue}>{sensorValue}°C</Text>
+                )}
+                {selectedSensor === 'humidity' && (
+                    <Text style={styles.sensorValue}>45%</Text>
+                )}
+                {selectedSensor === 'soil' && (
+                    <Text style={styles.sensorValue}>Moist</Text>
+                )}
+                {selectedSensor === 'light' && (
+                    <Text style={styles.sensorValue}>Bad</Text>
+                )}
+            </View>}
+            {selectedNode === 'Node2' && <View style={styles.valueContainer}>
+                {selectedSensor === 'temperature' && (
+                    <Text style={styles.sensorValue}>20°C</Text>
+                )}
+                {selectedSensor === 'humidity' && (
+                    <Text style={styles.sensorValue}>75%</Text>
+                )}
+                {selectedSensor === 'soil' && (
+                    <Text style={styles.sensorValue}>Moist</Text>
+                )}
+                {selectedSensor === 'light' && (
+                    <Text style={styles.sensorValue}>Good</Text>
+                )}
+            </View>}
+        </View>
     );
 };
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        // backgroundColor: '#f5f5f5',
-        paddingHorizontal: 20,
-        paddingVertical: 10,
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        justifyContent: 'space-between',
-    },
-    sensorContainer: {
-        width: '48%',
-        backgroundColor: '#ff8e13',
-        borderRadius: 20,
-        padding: 20,
-        marginBottom: 20,
         alignItems: 'center',
+        padding: 20
+        // justifyContent: 'center',
+    },
+    buttonContainer: {
+        flexDirection: 'row',
+        marginBottom: 20,
+    },
+    sensorButton: {
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        borderRadius: 10,
+        marginHorizontal: 10,
+        backgroundColor: 'white',
+        borderRadius: 100,
+    },
+    sensorButtonText: {
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
+    selectedButton: {
+        backgroundColor: '#ffc700',
+        shadowColor: '#ffc700',
+        shadowOffset: {
+            width: 10,
+            height: 10,
+        },
+        shadowOpacity: 10,
+        shadowRadius: 1,
+        elevation: 20,
+    },
+    valueContainer: {
+        width: 200,
+        height: 200,
+        backgroundColor: 'white',
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: 100,
         shadowColor: '#000',
         shadowOffset: {
             width: 10,
@@ -76,26 +212,16 @@ const styles = StyleSheet.create({
         shadowRadius: 3.84,
         elevation: 10,
     },
-    sensorIconContainer: {
-        backgroundColor: '#f0f0f0',
-        borderRadius: 50,
-        padding: 10,
-        marginBottom: 20,
-    },
-    sensorIcon: {
-        width: 50,
-        height: 50,
-    },
-    sensorName: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: '#fff',
-        marginBottom: 10,
-    },
     sensorValue: {
-        fontSize: 24,
+        fontSize: 36,
         fontWeight: 'bold',
-        color: '#555',
+    },
+    gaugeContainer: {
+        alignItems: 'center',
+    },
+    gauge: {
+        height: 200,
+        width: 200,
     },
 });
 

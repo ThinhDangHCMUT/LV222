@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Text, View, StyleSheet, Image, Dimensions} from 'react-native';
-import axios from 'axios';
+// import axios from 'axios';
 import { Ionicons } from '@expo/vector-icons';
 
 const Header = () => {

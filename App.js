@@ -7,8 +7,10 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import HomeScreen from './screens/HomeScreen';
 import SettingsScreen from './screens/SettingsScreen';
 import { registerRootComponent } from 'expo';
+import { Client } from 'react-native-mqtt';
 
-const Stack = createStackNavigator();
+
+// const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
 const App = () => {
@@ -33,12 +35,11 @@ const App = () => {
           inactiveTintColor: 'black',
         }}
       >
-        <Tab.Screen name="Sensor" component={HomeScreen} />
+        <Tab.Screen name="Sensor" component={HomeScreen}/>
         <Tab.Screen name="Device" component={SettingsScreen} />
       </Tab.Navigator>
     </NavigationContainer>
   );
 };
-registerRootComponent(App)
+// registerRootComponent(App)
 export default App;
-
