@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Text, View, StyleSheet, Image, Dimensions} from 'react-native';
-import axios from 'axios';
+// import axios from 'axios';
 import { Ionicons } from '@expo/vector-icons';
 
-const Header = () => {
+const Header = ({value}) => {
     const [currentDate, setCurrentDate] = useState('');
     const [weather, setWeather] = useState('');
-
+    console.log(value)
     useEffect(() => {
+      
         // const fetchWeather = async () => {
         //   const response = await axios.get('https://api.openweathermap.org/data/2.5/weather?q=London&appid={YOUR_APP_ID}');
         //   setWeather(response.data.weather[0].description);
@@ -26,7 +27,6 @@ const Header = () => {
     return (
         <View style={styles.container}>
             <View style={styles.leftContainer}>
-                {/* <Ionicons name="menu" size={24} color="white" /> */}
                 <Text style={styles.title}>Welcome to {" "}
                     <Image source={require('../assets/mango.png')} style={{ width: 20, height: 20, resizeMode: 'contain' }} />
                     {" "} Garden
@@ -39,6 +39,11 @@ const Header = () => {
                     <Text style={styles.dateText}>{currentDate}</Text>
                 </View>
             </View>
+            {
+                value ==='Device' && (
+                    <Text style={styles.dateText}>{value}</Text>
+                )
+            }
         </View>
     );
 };
@@ -76,7 +81,7 @@ const styles = StyleSheet.create({
     },
     title: {
         color: 'white',
-        fontSize: 20,
+        fontSize: 30,
         fontWeight: 'bold',
         marginLeft: 8,
     },
@@ -86,7 +91,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-around'
     },
     weatherText: {
-        color: 'white',
+        color: '#333',
         fontSize: 25,
         fontWeight: 'bold',
         marginRight: 12,

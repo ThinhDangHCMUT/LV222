@@ -1,20 +1,16 @@
 import React from 'react';
 import { View, StyleSheet, ImageBackground } from 'react-native';
-import TemperatureScreen from '../components/TemperatureScreen';
-import HumidityScreen from '../components/HumidityScreen';
-import MotorButton from '../components/MotorButton';
-import SensorScreenVip from '../components/SensorScreenVip';
+import SensorScreen from '../components/SensorScreen';
 // import SensorScreen from '../components/SensorScreen';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import Header from '../components/Header';
 
-const HomeScreen = ({ navigation }) => {
+const HomeScreen = ({ navigation, route }) => {
   return (
     <View style={styles.container}>  
         <Header />
-        <SensorScreenVip />
-        {/* <SensorScreen /> */}
+        <SensorScreen />
     </View>
   );
 };

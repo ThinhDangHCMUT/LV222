@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Button } from 'react-native';
+import { View, StyleSheet, Text } from 'react-native';
+import Header from '../components/Header';
+import DeviceScreen from '../components/DeviceScreen';
 // import { setSwitchTime } from '../utils/helpers';
 
-const SettingsScreen = ({navigation}) => {
+const SettingsScreen = ({navigation, route}) => {
   const [switchTime, setSwitchTime] = useState('');
-
+  
   const handleSetSwitchTime = () => {
     // setSwitchTime(switchTime);
     // setSwitchTime(parseInt(switchTime));
@@ -12,20 +14,27 @@ const SettingsScreen = ({navigation}) => {
   };
 
   return (
-    <View>
-      <Text>Set switch time in a day:</Text>
-      <TextInput
-        style={{ height: 40, borderColor: 'gray', borderWidth: 1 }}
-        onChangeText={text => setSwitchTime(text)}
-        value={switchTime}
-        keyboardType='numeric'
-      />
-      <TouchableOpacity onPress={handleSetSwitchTime}>
-        <Text>Set</Text>
-      </TouchableOpacity>
+    <View style={styles.container}>  
+        <Header value={route.name}/>
+        <DeviceScreen />
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+
+  },
+  imageBackground: {
+    flex: 1,
+    resizeMode: 'cover',
+    justifyContent: 'center',
+
+  },
+});
 
 export default SettingsScreen;
 
