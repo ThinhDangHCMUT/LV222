@@ -4,10 +4,9 @@ import Header from '../components/Header';
 import DeviceScreen from '../components/DeviceScreen';
 // import { setSwitchTime } from '../utils/helpers';
 
-const SettingsScreen = ({navigation}) => {
+const SettingsScreen = ({navigation, route}) => {
   const [switchTime, setSwitchTime] = useState('');
   
-
   const handleSetSwitchTime = () => {
     // setSwitchTime(switchTime);
     // setSwitchTime(parseInt(switchTime));
@@ -16,10 +15,8 @@ const SettingsScreen = ({navigation}) => {
 
   return (
     <View style={styles.container}>  
-        <Header />
+        <Header value={route.name}/>
         <DeviceScreen />
-        {/* <SensorScreenVip /> */}
-        {/* <SensorScreen /> */}
     </View>
   );
 };
