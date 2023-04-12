@@ -21,8 +21,25 @@ const SensorScreen = () => {
     const [currentTime, setCurrentTime] = useState(new Date());
 
     useEffect(() => {
-      const timer = setInterval(() => {
+    //   const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+      const timer = setInterval(async () => {
         setCurrentTime(new Date());
+        await axios.get(`http://${IP_ADDRESS}:3000/api/value`, {
+                headers: {
+                    "Content-Type": "application/json",
+                    Accept: "application/json"
+                }
+            })
+                .then(response => {
+                    console.log(response.data)
+                    if (response.data["ID"] === 100) {
+                        console.log(response.data["ID"])
+                        setMotor1(response.data["RELAY"] === 1 ? true : false)
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error)
+                })
       }, 1000);
   
       return () => clearInterval(timer);
@@ -37,9 +54,7 @@ const SensorScreen = () => {
         // do some function here
         console.log("It's time to watering");
         setMotor1(true)
-        const data = {
-            "status": "ON",
-        }
+        const data = "ONRELAY"
         axios.post(`http://${IP_ADDRESS}:3000/api/data`,{data: JSON.stringify(data)})
                 .then(response => { 
                     console.log(response.data)
@@ -49,18 +64,7 @@ const SensorScreen = () => {
                 })
       }
       else{
-        //   setMotor1(false)
-        //   setAutoMode(false)
-        // const data = {
-        //     "status": motor1 ? "ON":"OFF",
-        // }
-        // axios.post(`http://${IP_ADDRESS}:3000/api/data`,{data: JSON.stringify(data)})
-        //         .then(response => { 
-        //             console.log(response.data)
-        //         })
-        //         .catch(error => {
-        //             console.error('Error fetching data:', error)
-        //         })
+      
       }
     }
   
@@ -69,10 +73,8 @@ const SensorScreen = () => {
     }, [currentTime]);
 
     const handleSwitchMotor1 = async () => {
-        setMotor1(item => !item);
-        const data = {
-            "status": motor1? "OFF":"ON",
-        }
+        const data = motor1? "OFFRELAY":"ONRELAY"
+        setMotor1(item => !item)
         axios.post(`http://${IP_ADDRESS}:3000/api/data`,{data: JSON.stringify(data)})
                 .then(response => { 
                     console.log(response.data)
@@ -197,9 +199,8 @@ const SensorScreen = () => {
                         <TouchableOpacity onPress={handleSubmit} style={{
                             backgroundColor: "#ffc700", paddingVertical: 5,
                             paddingHorizontal: 10, borderRadius: 10, marginLeft:10
-
                         }}>
-                            <Text style={{ color: "#fff", fontSize: 16, fontStyle:'bold' }}>Đặt</Text>
+                            <Text style={{ color: "#fff", fontSize: 16, fontWeight:'bold' }}>Đặt</Text>
                         </TouchableOpacity>
                     </View>
                     <View style={{ flexDirection: 'column', alignItems: 'center', marginBottom: 10 }}>

@@ -1,9 +1,9 @@
 // import mqttConnection from '../utils/mqttConnection'
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+// import LinearGradient from 'react-native-linear-gradient'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { IP_ADDRESS } from '../constants';
-// import Speedometer from 'react-native-speedometer-chart';
 import axios from 'axios'
 
 
@@ -18,29 +18,20 @@ const SensorScreen = () => {
     };
     useEffect(() => {
         // set up a timer to fetch data every second
+        // console.log(IP_ADDRESS)
         const interval = setInterval(async () => {
-            axios.get(`http://${IP_ADDRESS}:3000/api/value`, {
+            await axios.get(`http://${IP_ADDRESS}:3000/api/value`, {
                 headers: {
                     "Content-Type": "application/json",
                     Accept: "application/json"
                 }
             })
-                .then(response => { 
+                .then(response => {
                     console.log(response.data)
-                    // setSensorValue1(response.data["ID"] === 1 && response.data)
-                    // setSensorValue2(response.data["ID"] === 2 && response.data)
-                    if(response.data["ID"] === 1 ) setSensorValue1(response.data)
-                    if(response.data["ID"] === 2 ) setSensorValue2(response.data)
-                    console.log("Node 1: ",sensorValue1)
-                    console.log("Node 2: ",sensorValue2)
-                    // console.log("Humid: ",response.data['humidity'])
-                    // console.log("Temperature: ", response.data['temperature'])
-                    // setTemp(response.data['temperature'])
-                    // setHumid(response.data['humidity'])
-                    // setSensorValue({
-                    //     temperature: response.data['temperature'],
-                    //     humidity: response.data['humidity']
-                    // })
+                    if (response.data["ID"] === 0) setSensorValue1(response.data)
+                    if (response.data["ID"] === 1) setSensorValue2(response.data)
+                    console.log("Node 1: ", sensorValue1)
+                    console.log("Node 2: ", sensorValue2)
                 })
                 .catch(error => {
                     console.error('Error fetching data:', error)
@@ -113,34 +104,143 @@ const SensorScreen = () => {
                     <Icon name='brightness-6' size={30} />
                 </TouchableOpacity>
             </View>
-            {selectedNode === 'Node1' && <View style={styles.valueContainer}>
-                {selectedSensor === 'temperature' && (
-                    <Text style={styles.sensorValue}>{sensorValue1["TEMP"]}°C</Text>
-                )}
-                {selectedSensor === 'humidity' && (
-                    <Text style={styles.sensorValue}>{sensorValue1["HUMID"]}%</Text>
-                )}
-                {selectedSensor === 'soil' && (
-                    <Text style={styles.sensorValue}>{sensorValue1["ADC"]}</Text>
-                )}
-                {selectedSensor === 'light' && (
-                    <Text style={styles.sensorValue}>{sensorValue1["N"]}</Text>
-                )}
-            </View>}
-            {selectedNode === 'Node2' && <View style={styles.valueContainer}>
-                {selectedSensor === 'temperature' && (
-                    <Text style={styles.sensorValue}>{sensorValue2["TEMP"]}°C</Text>
-                )}
-                {selectedSensor === 'humidity' && (
-                    <Text style={styles.sensorValue}>{sensorValue2["HUMID"]}%</Text>
-                )}
-                {selectedSensor === 'soil' && (
-                    <Text style={styles.sensorValue}>{sensorValue2["ADC"]}</Text>
-                )}
-                {selectedSensor === 'light' && (
-                    <Text style={styles.sensorValue}>{sensorValue2["N"]}</Text>
-                )}
-            </View>}
+            {selectedNode === 'Node1' &&
+                <View style={{
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                }}>
+                    <View style={selectedSensor !== 'soil' && styles.valueContainer}>
+                        {selectedSensor === 'temperature' && (
+                            <Text style={styles.sensorValue}>{sensorValue1["T"]}°C</Text>
+                        )}
+                        {selectedSensor === 'humidity' && (
+                            <Text style={styles.sensorValue}>{sensorValue1["H"]}%</Text>
+                        )}
+                        {selectedSensor === 'soil' && (
+                            <View style={styles.soilContainer}>
+                                <View style={{
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    borderRadius: 20,
+                                    // backgroundColor: 'black'
+                                }}>
+                                    <Icon name='alpha-n-box' size={50} style={{
+                                        backgroundColor: "#ffc700",color:'#fff', padding: 10, borderBottomLeftRadius: 10,
+                                        borderTopLeftRadius: 10,
+                                    }} />
+                                    <Text style={styles.soilValue}>{sensorValue1["N"]} mg/kg</Text>
+                                </View>
+                                <View style={{
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    borderRadius: 20,
+                                    marginVertical: 10,
+                                    // backgroundColor: 'black'
+                                }}>
+                                    <Icon name='alpha-p-box' size={50} style={{
+                                        backgroundColor: "#ffc700",color:'#fff', padding: 10, borderBottomLeftRadius: 10,
+                                        borderTopLeftRadius: 10,
+                                    }} />
+                                    <Text style={styles.soilValue}>{sensorValue1["P"]} mg/kg</Text>
+                                </View>
+                                <View style={{
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    borderRadius: 20,
+                                }}>
+                                    <Icon name='alpha-k-box' size={50} style={{
+                                        backgroundColor: "#ffc700",color:'#fff', padding: 10, borderBottomLeftRadius: 10,
+                                        borderTopLeftRadius: 10,
+                                    }} />
+                                    <Text style={styles.soilValue}>{sensorValue1["K"]} mg/kg</Text>
+                                </View>
+                            </View>)}
+                        {selectedSensor === 'light' && (
+                            <Text style={styles.sensorValue}>{sensorValue1["A"]} g/m3</Text>
+
+                        )}
+                    </View>
+                </View>
+
+            }
+            {selectedNode === 'Node2' &&
+                 <View style={{
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                }}>
+                    <View style={selectedSensor !== 'soil' && styles.valueContainer}>
+                        {selectedSensor === 'temperature' && (
+                            <Text style={styles.sensorValue}>{sensorValue2["T"]}°C</Text>
+                        )}
+                        {selectedSensor === 'humidity' && (
+                            <Text style={styles.sensorValue}>{sensorValue2["H"]}%</Text>
+                        )}
+                        {selectedSensor === 'soil' && (
+                            <View style={styles.soilContainer}>
+                                <View style={{
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    borderRadius: 20,
+                                    // backgroundColor: 'black'
+                                }}>
+                                    <Icon name='alpha-n-box' size={50} style={{
+                                        backgroundColor: "#ffc700",color:'#fff', padding: 10, borderBottomLeftRadius: 10,
+                                        borderTopLeftRadius: 10,
+                                    }} />
+                                    <Text style={styles.soilValue}>{sensorValue2["N"]} mg/kg</Text>
+                                </View>
+                                <View style={{
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    borderRadius: 20,
+                                    marginVertical: 10,
+                                    // backgroundColor: 'black'
+                                }}>
+                                    <Icon name='alpha-p-box' size={50} style={{
+                                        backgroundColor: "#ffc700",color:'#fff', padding: 10, borderBottomLeftRadius: 10,
+                                        borderTopLeftRadius: 10,
+                                    }} />
+                                    <Text style={styles.soilValue}>{sensorValue2["P"]} mg/kg</Text>
+                                </View>
+                                <View style={{
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    borderRadius: 20,
+                                }}>
+                                    <Icon name='alpha-k-box' size={50} style={{
+                                        backgroundColor: "#ffc700",color:'#fff', padding: 10, borderBottomLeftRadius: 10,
+                                        borderTopLeftRadius: 10,
+                                    }} />
+                                    <Text style={styles.soilValue}>{sensorValue2["K"]} mg/kg</Text>
+                                </View>
+                            </View>)}
+                        {selectedSensor === 'light' && (
+                            <Text style={styles.sensorValue}>{sensorValue2["A"]}</Text>
+
+                        )}
+                    </View>
+                </View>
+            }
+             {selectedSensor === 'temperature' && (
+                        <Text style={styles.sensorLabel}>Nhiệt độ</Text>
+                    )}
+                    {selectedSensor === 'humidity' && (
+                        <Text style={styles.sensorLabel}>Độ ẩm</Text>
+                    )}
+                    {selectedSensor === 'soil' && (
+                        <Text style={styles.sensorLabel}>Phân bón</Text>
+                    )}
+                    {selectedSensor === 'light' && (
+                        <Text style={styles.sensorLabel}>Độ ẩm đất</Text>
+
+
+                    )}
         </View>
     );
 };
@@ -186,16 +286,49 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         borderRadius: 100,
-        shadowColor: '#000',
+        shadowColor: "#ffc700",
         shadowOffset: {
-            width: 1,
-            height: 1,
+            width: 0,
+            height: 12,
         },
-        shadowOpacity: 0.2,
-        shadowRadius: 3.84,
-        elevation: 10,
+        shadowOpacity: 0.58,
+        shadowRadius: 16.00,
+
+        elevation: 24,
+    },
+    soilContainer: {
+        width: 300,
+        borderRadius: 10,
+        padding: 10,
+        alignItems: 'center',
+        justifyContent: 'center',
+        // backgroundColor: "#fff"
+    },
+    // soilValue{
+    //     color:
+    // },
+    sensorLabel: {
+        color: "black",
+        backgroundColor: '#ffc700',
+        borderRadius: 15,
+        padding: 10,
+        marginTop: 20,
+        fontSize: 25,
+        fontWeight: 'bold',
+        fontStyle: 'italic',
+    },
+    soilValue: {
+        width: 200,
+        fontSize: 25,
+        padding: 20,
+        backgroundColor: '#fff',
+        borderBottomRightRadius: 10,
+        borderTopRightRadius: 10,
+        fontWeight: 'bold',
+        // color: "ffc700"
     },
     sensorValue: {
+        // color: 'white',
         fontSize: 36,
         fontWeight: 'bold',
     },
