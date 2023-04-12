@@ -4,8 +4,9 @@ const mqtt = require('mqtt')
 const app = express()
 
 const brokerUrl = 'ws://broker.mqttdashboard.com:8000/mqtt'
-const clientId = 'clientId-2dNIshSilr'
-const topic = 'myTopic'
+const clientId = 'thinhdang'
+const topic = 'mango_garden_data'
+const topic_send = 'mango_garden_cmd'
 const client = mqtt.connect(brokerUrl, { clientId })
 
 
@@ -32,8 +33,8 @@ app.get('/api/value', (req, res) => {
 
 app.post('/api/data', express.json(), (req, res) => {
   const message = req.body.data
-  console.log("hello: ", message)
-  client.publish('button', message)
+  console.log("Button Data: ", message)
+  client.publish(topic_send, message)
   res.json({ success: true })
 })
 
