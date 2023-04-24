@@ -1,50 +1,96 @@
 // import mqttConnection from '../utils/mqttConnection'
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Switch } from 'react-native';
 // import LinearGradient from 'react-native-linear-gradient'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { IP_ADDRESS } from '../constants';
 import axios from 'axios'
-
 
 const SensorScreen = () => {
     const [selectedNode, setSelectedNode] = useState('Node1')
     const [selectedSensor, setSelectedSensor] = useState('temperature');
     const [sensorValue1, setSensorValue1] = useState("")
     const [sensorValue2, setSensorValue2] = useState("")
+    const [notification1, setNotification1] = useState({ N: "", P: "", K: "" })
+    const [notification2, setNotification2] = useState({ N: "", P: "", K: "" })
+    const [flag, setFlag] = useState(false)
 
     const handleSensorSelection = (sensor) => {
         setSelectedSensor(sensor);
     };
+
+    const handleSoilAuto = () => {
+        setFlag(item => !item)
+    }
+
     useEffect(() => {
         // set up a timer to fetch data every second
-        // console.log(IP_ADDRESS)
         const interval = setInterval(async () => {
-            await axios.get(`http://${IP_ADDRESS}:3000/api/value`, {
+            axios.get(`http://${IP_ADDRESS}:3000/api/value`, {
                 headers: {
                     "Content-Type": "application/json",
                     Accept: "application/json"
                 }
             })
                 .then(response => {
-                    console.log(response.data)
+                    console.log("Data from backend:", response.data)
+                    // console.log("emergency");
                     if (response.data["ID"] === 0) setSensorValue1(response.data)
                     if (response.data["ID"] === 1) setSensorValue2(response.data)
                     console.log("Node 1: ", sensorValue1)
                     console.log("Node 2: ", sensorValue2)
+                    //NODE 1
+                    //warning N
+                    if (parseFloat(sensorValue1["N"]) < 10) setNotification1(prevState => ({ ...prevState, N: "N: Thấp" }));
+                    if (parseFloat(sensorValue1["N"]) >= 10 && parseFloat(sensorValue1["N"]) <= 20) setNotification1(prevState => ({ ...prevState, N: "N: Tốt" }));
+                    if (parseFloat(sensorValue1["N"]) > 20) setNotification1(prevState => ({ ...prevState, N: "N: Vượt ngưỡng!!!" }));
+                    //warning P
+                    if (parseFloat(sensorValue1["P"]) < 10) setNotification1(prevState => ({ ...prevState, P: "P: Thấp" }));
+                    if (parseFloat(sensorValue1["P"]) >= 10 && parseFloat(sensorValue1["P"]) <= 15) setNotification1(prevState => ({ ...prevState, P: "P: Tốt" }));
+                    if (parseFloat(sensorValue1["P"]) > 15) setNotification1(prevState => ({ ...prevState, P: "P: Vượt ngưỡng!!!" }));
+                    //Warning K
+                    if (parseFloat(sensorValue1["K"]) < 30) setNotification1(prevState => ({ ...prevState, K: "K: Thấp" }));
+                    if (parseFloat(sensorValue1["K"]) >= 30 && parseFloat(sensorValue1["P"]) <= 50) setNotification1(prevState => ({ ...prevState, K: "K: Tốt" }));
+                    if (parseFloat(sensorValue1["K"]) > 50) setNotification1(prevState => ({ ...prevState, K: "K: Vượt ngưỡng!!!" }));
+
+                    //NODE 2
+                    //warning N
+                    if (parseFloat(sensorValue2["N"]) < 10) setNotification2(prevState => ({ ...prevState, N: "N: Thấp" }));
+                    if (parseFloat(sensorValue2["N"]) >= 10 && parseFloat(sensorValue2["N"]) <= 20) setNotification2(prevState => ({ ...prevState, N: "N: Tốt" }));
+                    if (parseFloat(sensorValue2["N"]) > 20) setNotification2(prevState => ({ ...prevState, N: "N: Vượt ngưỡng!!!" }));
+                    //warning P
+                    if (parseFloat(sensorValue2["P"]) < 10) setNotification2(prevState => ({ ...prevState, P: "P: Thấp" }));
+                    if (parseFloat(sensorValue2["P"]) >= 10 && parseFloat(sensorValue2["P"]) <= 15) setNotification2(prevState => ({ ...prevState, P: "P: Tốt" }));
+                    if (parseFloat(sensorValue2["P"]) > 15) setNotification2(prevState => ({ ...prevState, P: "P: Vượt ngưỡng!!!" }));
+                    //Warning K
+                    if (parseFloat(sensorValue2["K"]) < 30) setNotification2(prevState => ({ ...prevState, K: "K: Thấp" }));
+                    if (parseFloat(sensorValue2["K"]) >= 30 && parseFloat(sensorValue2["P"]) <= 50) setNotification2(prevState => ({ ...prevState, K: "K: Tốt" }));
+                    if (parseFloat(sensorValue2["K"]) > 50) setNotification2(prevState => ({ ...prevState, K: "K: Vượt ngưỡng!!!" }));
+
+                    if (flag === true) {
+                        console.log("*****************************************")
+                        if (parseFloat(sensorValue1["A"]) < 45) {
+                            axios.post(`http://${IP_ADDRESS}:3000/api/data`, { data: JSON.stringify("ONRELAY") })
+                        }
+                        if (parseFloat(sensorValue1["A"]) >= 45) {
+                            axios.post(`http://${IP_ADDRESS}:3000/api/data`, { data: JSON.stringify("OFFRELAY") })
+                        }
+                    }
                 })
                 .catch(error => {
                     console.error('Error fetching data:', error)
                 })
         }, 1000)
-
         // clean up the timer when the component unmounts
         return () => clearInterval(interval)
-    }, [])
+    }, [sensorValue1, sensorValue2, flag])
+
+
 
     return (
         <View style={styles.container}>
             <View style={styles.buttonContainer}>
+                {/* <Button title="Send Email" onPress={sendEmergencyEmail} /> */}
                 <TouchableOpacity
                     style={[
                         styles.sensorButton,
@@ -126,7 +172,7 @@ const SensorScreen = () => {
                                     // backgroundColor: 'black'
                                 }}>
                                     <Icon name='alpha-n-box' size={50} style={{
-                                        backgroundColor: "#ffc700",color:'#fff', padding: 10, borderBottomLeftRadius: 10,
+                                        backgroundColor: "#ffc700", color: '#fff', padding: 10, borderBottomLeftRadius: 10,
                                         borderTopLeftRadius: 10,
                                     }} />
                                     <Text style={styles.soilValue}>{sensorValue1["N"]} mg/kg</Text>
@@ -140,7 +186,7 @@ const SensorScreen = () => {
                                     // backgroundColor: 'black'
                                 }}>
                                     <Icon name='alpha-p-box' size={50} style={{
-                                        backgroundColor: "#ffc700",color:'#fff', padding: 10, borderBottomLeftRadius: 10,
+                                        backgroundColor: "#ffc700", color: '#fff', padding: 10, borderBottomLeftRadius: 10,
                                         borderTopLeftRadius: 10,
                                     }} />
                                     <Text style={styles.soilValue}>{sensorValue1["P"]} mg/kg</Text>
@@ -152,7 +198,7 @@ const SensorScreen = () => {
                                     borderRadius: 20,
                                 }}>
                                     <Icon name='alpha-k-box' size={50} style={{
-                                        backgroundColor: "#ffc700",color:'#fff', padding: 10, borderBottomLeftRadius: 10,
+                                        backgroundColor: "#ffc700", color: '#fff', padding: 10, borderBottomLeftRadius: 10,
                                         borderTopLeftRadius: 10,
                                     }} />
                                     <Text style={styles.soilValue}>{sensorValue1["K"]} mg/kg</Text>
@@ -167,7 +213,7 @@ const SensorScreen = () => {
 
             }
             {selectedNode === 'Node2' &&
-                 <View style={{
+                <View style={{
                     alignItems: 'center',
                     justifyContent: 'center',
                 }}>
@@ -188,7 +234,7 @@ const SensorScreen = () => {
                                     // backgroundColor: 'black'
                                 }}>
                                     <Icon name='alpha-n-box' size={50} style={{
-                                        backgroundColor: "#ffc700",color:'#fff', padding: 10, borderBottomLeftRadius: 10,
+                                        backgroundColor: "#ffc700", color: '#fff', padding: 10, borderBottomLeftRadius: 10,
                                         borderTopLeftRadius: 10,
                                     }} />
                                     <Text style={styles.soilValue}>{sensorValue2["N"]} mg/kg</Text>
@@ -202,7 +248,7 @@ const SensorScreen = () => {
                                     // backgroundColor: 'black'
                                 }}>
                                     <Icon name='alpha-p-box' size={50} style={{
-                                        backgroundColor: "#ffc700",color:'#fff', padding: 10, borderBottomLeftRadius: 10,
+                                        backgroundColor: "#ffc700", color: '#fff', padding: 10, borderBottomLeftRadius: 10,
                                         borderTopLeftRadius: 10,
                                     }} />
                                     <Text style={styles.soilValue}>{sensorValue2["P"]} mg/kg</Text>
@@ -214,33 +260,55 @@ const SensorScreen = () => {
                                     borderRadius: 20,
                                 }}>
                                     <Icon name='alpha-k-box' size={50} style={{
-                                        backgroundColor: "#ffc700",color:'#fff', padding: 10, borderBottomLeftRadius: 10,
+                                        backgroundColor: "#ffc700", color: '#fff', padding: 10, borderBottomLeftRadius: 10,
                                         borderTopLeftRadius: 10,
                                     }} />
                                     <Text style={styles.soilValue}>{sensorValue2["K"]} mg/kg</Text>
                                 </View>
                             </View>)}
                         {selectedSensor === 'light' && (
-                            <Text style={styles.sensorValue}>{sensorValue2["A"]}</Text>
+                            <Text style={styles.sensorValue}>{sensorValue2["A"]}g/m3</Text>
 
                         )}
                     </View>
                 </View>
             }
-             {selectedSensor === 'temperature' && (
-                        <Text style={styles.sensorLabel}>Nhiệt độ</Text>
-                    )}
-                    {selectedSensor === 'humidity' && (
-                        <Text style={styles.sensorLabel}>Độ ẩm</Text>
-                    )}
-                    {selectedSensor === 'soil' && (
-                        <Text style={styles.sensorLabel}>Phân bón</Text>
-                    )}
-                    {selectedSensor === 'light' && (
-                        <Text style={styles.sensorLabel}>Độ ẩm đất</Text>
-
-
-                    )}
+            {selectedSensor === 'temperature' && (
+                <Text style={styles.sensorLabel}>Nhiệt độ</Text>
+            )}
+            {selectedSensor === 'humidity' && (
+                <Text style={styles.sensorLabel}>Độ ẩm</Text>
+            )}
+            {selectedNode === 'Node2' && selectedSensor === 'soil' && (
+                <View>
+                    <Text style={styles.sensorLabel}>{notification2.N}</Text>
+                    <Text style={styles.sensorLabel}>{notification2.P}</Text>
+                    <Text style={styles.sensorLabel}>{notification2.K}</Text>
+                </View>
+            )}
+            {selectedNode === 'Node1' && selectedSensor === 'soil' && (
+                <View>
+                    <Text style={styles.sensorLabel}>{notification1.N}</Text>
+                    <Text style={styles.sensorLabel}>{notification1.P}</Text>
+                    <Text style={styles.sensorLabel}>{notification1.K}</Text>
+                </View>
+            )}
+            {selectedSensor === 'light' && (
+                <Text style={styles.sensorLabel}>Độ ẩm đất</Text>
+            )}
+            <View>
+                <Text>Tự động tưới theo độ ẩm đất</Text>
+                <Switch
+                    value={flag}
+                    onValueChange={handleSoilAuto}
+                    trackColor={{ false: "#767577", true: "#ffc700" }}
+                    thumbColor={flag ? "#f4f3f4" : "#f4f3f4"}
+                    style={{
+                        transform: [{ scaleX: 1.5 }, { scaleY: 1.5 }],
+                        width: 50,
+                        trackSize: 50,
+                    }} />
+            </View>
         </View>
     );
 };
