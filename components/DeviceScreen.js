@@ -21,10 +21,9 @@ const SensorScreen = () => {
     const [currentTime, setCurrentTime] = useState(new Date());
 
     useEffect(() => {
-    //   const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-      const timer = setInterval(async () => {
-        setCurrentTime(new Date());
-        await axios.get(`http://${IP_ADDRESS}:3000/api/value`, {
+        const timer = setInterval(async () => {
+            setCurrentTime(new Date());
+            await axios.get(`http://${IP_ADDRESS}:3000/api/value`, {
                 headers: {
                     "Content-Type": "application/json",
                     Accept: "application/json"
@@ -32,6 +31,7 @@ const SensorScreen = () => {
             })
                 .then(response => {
                     console.log(response.data)
+                    //Cập nhật trạng thái của nút nhấn
                     if (response.data["ID"] === 100) {
                         console.log(response.data["ID"])
                         setMotor1(response.data["RELAY"] === 1 ? true : false)
@@ -40,49 +40,70 @@ const SensorScreen = () => {
                 .catch(error => {
                     console.error('Error fetching data:', error)
                 })
-      }, 1000);
-  
-      return () => clearInterval(timer);
+        }, 1000);
+
+        return () => clearInterval(timer);
     }, []);
-  
+
+
+
     const compareTime = () => {
-    //   console.log(start)
-      const temp = start.split(' ')
-      console.log(temp)
-      if (currentTime.getHours() === parseInt(temp[0]) &&
-          currentTime.getMinutes() === parseInt(temp[2])) {
-        // do some function here
-        console.log("It's time to watering");
-        setMotor1(true)
-        const data = "ONRELAY"
-        axios.post(`http://${IP_ADDRESS}:3000/api/data`,{data: JSON.stringify(data)})
-                .then(response => { 
+        //   console.log(start)
+        const temp = start?.split(' ')
+        const temp1 = end?.split(' ')
+        console.log(temp)
+        //TURN ON AUTOMATICALLY MOTOR 
+        if (currentTime.getHours() === parseInt(temp[0]) &&
+            currentTime.getMinutes() === parseInt(temp[2])) {
+            // do some function here
+            console.log("It's time to watering");
+            // setMotor1(true)
+            const data = "ONRELAY"
+            axios.post(`http://${IP_ADDRESS}:3000/api/data`, { data: JSON.stringify("ONRELAY") })
+                .then(response => {
                     console.log(response.data)
                 })
                 .catch(error => {
                     console.error('Error fetching data:', error)
                 })
-      }
-      else{
-      
-      }
+        }
+        //TURN OFF 
+        else if (currentTime.getHours() === parseInt(temp1[0]) &&
+            currentTime.getMinutes() === parseInt(temp1[2])) {
+            // do some function here
+            console.log("Turn off the motor");
+            // setMotor1(false)
+            const data = "OFFRELAY"
+            axios.post(`http://${IP_ADDRESS}:3000/api/data`, { data: JSON.stringify("OFFRELAY") })
+                .then(response => {
+                    console.log(response.data)
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error)
+                })
+        }
     }
-  
+
     useEffect(() => {
-        if(autoMode) compareTime();
+        //Render lại component phụ thuộc vào thời gian thực, 
+        //Nếu mà vẫn còn trạng thái autoMode thì tiến hành so sánh thời gian thực để bật tắt
+        if (autoMode === true) compareTime();
     }, [currentTime]);
 
     const handleSwitchMotor1 = async () => {
-        const data = motor1? "OFFRELAY":"ONRELAY"
-        setMotor1(item => !item)
-        axios.post(`http://${IP_ADDRESS}:3000/api/data`,{data: JSON.stringify(data)})
-                .then(response => { 
-                    console.log(response.data)
-                })
-                .catch(error => {
-                    console.error('Error fetching data:', error)
-                })
+        const data = motor1 ? "OFFRELAY" : "ONRELAY"
+        //khi đã bật tắt manual thì sẽ tắt chế độ auto (ưu tiên cho manual)
+        setAutoMode(false)
+        // setMotor1(item => !item)
+        axios.post(`http://${IP_ADDRESS}:3000/api/data`, { data: JSON.stringify(data) })
+            .then(response => {
+                console.log(response.data)
+            })
+            .catch(error => {
+                console.error('Error fetching data:', error)
+            })
     };
+
     const handleSwitchMotor2 = () => {
         setMotor2(item => !item);
         // switchMotor(!isMotorOn);
@@ -109,18 +130,21 @@ const SensorScreen = () => {
         }
         else setDead('')
     };
-    // console.log(start)
-    // console.log(end)
+    console.log(start)
+    console.log(end)
     const handleSubmit = () => {
+        //Bật trạng thái auto mode
         setAutoMode(true)
         let number = parseInt(min) + parseInt(dead)
         let endTimeClock
         setStart(hour + ' giờ ' + min + ' phút')
-        if(number >= 60){
+        
+        if (number >= 60) {
             number = number - 60
-            if(hour === '23') endTimeClock = '0 giờ ' + number + " phút" 
+            if (hour === '23') endTimeClock = '0 giờ ' + number + " phút"
             else endTimeClock = (parseInt(hour) + 1).toString() + " giờ " + number + " phút"
         }
+        else endTimeClock = hour + ' giờ ' + number + ' phút'
         setEnd(endTimeClock)
         setHour('')
         setMin('')
@@ -194,13 +218,13 @@ const SensorScreen = () => {
                     )}
                 <View style={styles.scheduleContainer}>
 
-                    <View style={{flexDirection:'row', alignItems:'center', justifyContent:'space-between'}}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                         <Text style={styles.sensorName}>Đặt lịch trình tưới</Text>
                         <TouchableOpacity onPress={handleSubmit} style={{
                             backgroundColor: "#ffc700", paddingVertical: 5,
-                            paddingHorizontal: 10, borderRadius: 10, marginLeft:10
+                            paddingHorizontal: 10, borderRadius: 10, marginLeft: 10
                         }}>
-                            <Text style={{ color: "#fff", fontSize: 16, fontWeight:'bold' }}>Đặt</Text>
+                            <Text style={{ color: "#fff", fontSize: 16, fontWeight: 'bold' }}>Đặt</Text>
                         </TouchableOpacity>
                     </View>
                     <View style={{ flexDirection: 'column', alignItems: 'center', marginBottom: 10 }}>

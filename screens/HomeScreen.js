@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, ImageBackground } from 'react-native';
+import { View, StyleSheet, ScrollView } from 'react-native';
 import SensorScreen from '../components/SensorScreen';
 // import SensorScreen from '../components/SensorScreen';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -8,10 +8,12 @@ import Header from '../components/Header';
 
 const HomeScreen = ({ navigation, route }) => {
   return (
-    <View style={styles.container}>  
+    <ScrollView>
+      <View style={styles.container}>
         <Header />
         <SensorScreen />
-    </View>
+      </View>
+    </ScrollView>
   );
 };
 
