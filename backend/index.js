@@ -15,28 +15,28 @@ const client = mqtt.connect(brokerUrl, { clientId })
 const transporter = nodemailer.createTransport({
   service: 'gmail', // Use the email service of your choice
   auth: {
-    user: 'danggiathinhgocong@gmail.com', // Your email address
-    pass: 'shzkxbtoyncnkprh' // Your email password
+    user: 'mangogarden1402@gmail.com', // Your email address
+    pass: 'rxoluyzgjgnhbwju' // Your email password
   }
 });
 
 // Define the email options
 const mailOptionsN = {
-  from: 'danggiathinhgocong@gmail.com', // Sender email address
+  from: 'mangogarden1402@gmail.com', // Sender email address
   to: 'danggiathinhgocong@gmail.com', // Recipient email address
   subject: 'Cảnh báo về chỉ số N', // Subject of the email
   text: 'Chỉ số N đang ngoài mức cho phép' // Plain text body of the email
 };
 
 const mailOptionsP = {
-  from: 'danggiathinhgocong@gmail.com', // Sender email address
+  from: 'mangogarden1402@gmail.com', // Sender email address
   to: 'danggiathinhgocong@gmail.com', // Recipient email address
   subject: 'Cảnh báo về chỉ số P', // Subject of the email
   text: 'Chỉ số N đang ngoài mức cho phép' // Plain text body of the email
 };
 
 const mailOptionsK = {
-  from: 'danggiathinhgocong@gmail.com', // Sender email address
+  from: 'mangogarden1402@gmail.com', // Sender email address
   to: 'danggiathinhgocong@gmail.com', // Recipient email address
   subject: 'Cảnh báo về chỉ số K', // Subject of the email
   text: 'Chỉ số K đang ngoài mức cho phép' // Plain text body of the email
@@ -52,41 +52,56 @@ client.on('connect', () => {
   client.subscribe(topic)
 })
 
+
+// client.on('message', (topic, message) => {
+//   console.log(`Received message on topic ${ topic }: ${ message.toString() }`)
+//   // if (parseFloat((message.toString()).split(',')[1].split(':')[1]) > 30) {
+//   //   transporter.sendMail(mailOptions, (error, info) => {
+//   //     if (error) {
+//   //       console.error('Could not send email', error);
+//   //     } else {
+//   //       console.log('Email sent successfully', info);
+//   //     }
+//   //   });
+//   // }
+//   lastMessage = message.toString()
+// })
+
 const messageListener = (topic, message) => {
   console.log(`Received message on topic ${topic}: ${message.toString()}`)
   console.log((message.toString()).split(',')[1].split(':')[1])
-  if(parseFloat((message.toString()).split(',')[4].split(':')[1]) > 20 || parseFloat((message.toString()).split(',')[4].split(':')[1]) < 10) {
+  if(parseFloat((message.toString()).split(',')[4]?.split(':')[1]) > 20 || parseFloat((message.toString()).split(',')[4]?.split(':')[1]) < 10) {
     transporter.sendMail(mailOptionsN, (error, info) => {
       if (error) {
         console.error('Could not send email', error);
       } else {
         console.log('Email sent successfully', info);
         // Remove the event listener after sending the email
-        client.removeListener('message', messageListener);
+        // client.removeListener('message', messageListener);
       }
     });
   }
 
-  if(parseFloat((message.toString()).split(',')[5].split(':')[1]) > 15 || parseFloat((message.toString()).split(',')[5].split(':')[1]) < 10) {
+  if(parseFloat((message.toString()).split(',')[5]?.split(':')[1]) > 15 || parseFloat((message.toString()).split(',')[5]?.split(':')[1]) < 10) {
     transporter.sendMail(mailOptionsP, (error, info) => {
       if (error) {
         console.error('Could not send email', error);
       } else {
         console.log('Email sent successfully', info);
         // Remove the event listener after sending the email
-        client.removeListener('message', messageListener);
+        // client.removeListener('message', messageListener);
       }
     });
   }
 
-  if(parseFloat((message.toString()).split(',')[6].split(':')[1]) > 50 || parseFloat((message.toString()).split(',')[6].split(':')[1]) < 30) {
+  if(parseFloat((message.toString()).split(',')[6]?.split(':')[1]) > 50 || parseFloat((message.toString()).split(',')[6]?.split(':')[1]) < 30) {
     transporter.sendMail(mailOptionsK, (error, info) => {
       if (error) {
         console.error('Could not send email', error);
       } else {
         console.log('Email sent successfully', info);
         // Remove the event listener after sending the email
-        client.removeListener('message', messageListener);
+        // client.removeListener('message', messageListener);
       }
     });
   }
@@ -94,17 +109,13 @@ const messageListener = (topic, message) => {
   lastMessage = message.toString()
 };
 
-// Add the event listener
+// // Add the event listener
 client.on('message', messageListener);
 
 
 app.get('/api/value', (req, res) => {
   console.log('Sending data to frontend:', lastMessage)
   res.send(lastMessage)
-  // const data = { temperature: 25, humidity: 50 }
-  // console.log('Sending data to frontend:', data)
-  // // Send the data to the frontend
-  // res.send(data)
 })
 
 app.post('/api/data', express.json(), (req, res) => {

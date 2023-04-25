@@ -19,6 +19,7 @@ const SensorScreen = () => {
     const [selectedValue, setSelectedValue] = useState('java');
 
     const [currentTime, setCurrentTime] = useState(new Date());
+
     useEffect(() => {
         const timer = setInterval(async () => {
             setCurrentTime(new Date());
@@ -35,8 +36,6 @@ const SensorScreen = () => {
                         console.log(response.data["ID"])
                         setMotor1(response.data["RELAY"] === 1 ? true : false)
                     }
-                    // if (response.data === "ONRELAY") setMotor1(true)
-                    // if (response.data === "OFFRELAY") setMotor1(false)
                 })
                 .catch(error => {
                     console.error('Error fetching data:', error)
@@ -60,7 +59,7 @@ const SensorScreen = () => {
             console.log("It's time to watering");
             // setMotor1(true)
             const data = "ONRELAY"
-            axios.post(`http://${IP_ADDRESS}:3000/api/data`, { data: JSON.stringify(data) })
+            axios.post(`http://${IP_ADDRESS}:3000/api/data`, { data: JSON.stringify("ONRELAY") })
                 .then(response => {
                     console.log(response.data)
                 })
@@ -75,7 +74,7 @@ const SensorScreen = () => {
             console.log("Turn off the motor");
             // setMotor1(false)
             const data = "OFFRELAY"
-            axios.post(`http://${IP_ADDRESS}:3000/api/data`, { data: JSON.stringify(data) })
+            axios.post(`http://${IP_ADDRESS}:3000/api/data`, { data: JSON.stringify("OFFRELAY") })
                 .then(response => {
                     console.log(response.data)
                 })
@@ -95,7 +94,7 @@ const SensorScreen = () => {
         const data = motor1 ? "OFFRELAY" : "ONRELAY"
         //khi đã bật tắt manual thì sẽ tắt chế độ auto (ưu tiên cho manual)
         setAutoMode(false)
-        setMotor1(item => !item)
+        // setMotor1(item => !item)
         axios.post(`http://${IP_ADDRESS}:3000/api/data`, { data: JSON.stringify(data) })
             .then(response => {
                 console.log(response.data)

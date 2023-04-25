@@ -1,8 +1,8 @@
 // import mqttConnection from '../utils/mqttConnection'
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Switch } from 'react-native';
-// import LinearGradient from 'react-native-linear-gradient'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+// import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { IP_ADDRESS } from '../constants';
 import axios from 'axios'
 
@@ -35,8 +35,8 @@ const SensorScreen = () => {
                 .then(response => {
                     console.log("Data from backend:", response.data)
                     // console.log("emergency");
-                    if (response.data["ID"] === 0) setSensorValue1(response.data)
-                    if (response.data["ID"] === 1) setSensorValue2(response.data)
+                    if (response.data["I"] === 0) setSensorValue1(response.data)
+                    if (response.data["I"] === 1) setSensorValue2(response.data)
                     console.log("Node 1: ", sensorValue1)
                     console.log("Node 2: ", sensorValue2)
                     //NODE 1
@@ -69,12 +69,19 @@ const SensorScreen = () => {
 
                     if (flag === true) {
                         console.log("*****************************************")
-                        if (parseFloat(sensorValue1["A"]) < 45) {
+                        if (parseFloat(sensorValue1["A"]) < 45 && selectedNode ==="Node1") {
                             axios.post(`http://${IP_ADDRESS}:3000/api/data`, { data: JSON.stringify("ONRELAY") })
                         }
-                        if (parseFloat(sensorValue1["A"]) >= 45) {
+                        if (parseFloat(sensorValue1["A"]) >= 45 && selectedNode ==="Node1") {
                             axios.post(`http://${IP_ADDRESS}:3000/api/data`, { data: JSON.stringify("OFFRELAY") })
                         }
+                        if (parseFloat(sensorValue2["A"]) < 45 && selectedNode ==="Node2" ) {
+                            axios.post(`http://${IP_ADDRESS}:3000/api/data`, { data: JSON.stringify("ONRELAY") })
+                        }
+                        if (parseFloat(sensorValue2["A"]) < 45 && selectedNode ==="Node2") {
+                            axios.post(`http://${IP_ADDRESS}:3000/api/data`, { data: JSON.stringify("ONRELAY") })
+                        }
+                        
                     }
                 })
                 .catch(error => {
@@ -296,19 +303,25 @@ const SensorScreen = () => {
             {selectedSensor === 'light' && (
                 <Text style={styles.sensorLabel}>Độ ẩm đất</Text>
             )}
-            <View>
-                <Text>Tự động tưới theo độ ẩm đất</Text>
-                <Switch
-                    value={flag}
-                    onValueChange={handleSoilAuto}
-                    trackColor={{ false: "#767577", true: "#ffc700" }}
-                    thumbColor={flag ? "#f4f3f4" : "#f4f3f4"}
-                    style={{
-                        transform: [{ scaleX: 1.5 }, { scaleY: 1.5 }],
-                        width: 50,
-                        trackSize: 50,
-                    }} />
-            </View>
+            {selectedSensor === 'light' &&
+                    (<View style={styles.sensorContainer}>
+                        {/* <View style={styles.sensorIconContainer}>
+                            <MaterialCommunityIcons name="water-pump" size={40} color={flag ? "#ffc700" : "black"} />
+                        </View> */}
+                        <Text style={styles.sensorName}>Tự động theo độ ẩm đất</Text>
+                        {/* <Text style={styles.sensorDes}>Vườn xoài 1</Text> */}
+                        <Switch
+                            value={flag}
+                            onValueChange={handleSoilAuto}
+                            trackColor={{ false: "#767577", true: "#ffc700" }}
+                            thumbColor={flag ? "#f4f3f4" : "#f4f3f4"}
+                            style={{
+                                transform: [{ scaleX: 1.5 }, { scaleY: 1.5 }],
+                                width: 50,
+                                trackSize: 50,
+                            }} />
+                    </View>
+                    )}
         </View>
     );
 };
@@ -406,6 +419,45 @@ const styles = StyleSheet.create({
     gauge: {
         height: 200,
         width: 200,
+    },
+    sensorContainer: {
+        width: 200,
+        backgroundColor: '#fff',
+        borderRadius: 20,
+        padding: 20,
+        marginBottom: 10,
+        flexDirection: 'column',
+        // justifyContent: 'flex-start',
+        alignItems: 'flex-start',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 1,
+            height: 1,
+        },
+        shadowOpacity: 0.2,
+        shadowRadius: 3.84,
+        elevation: 10,
+    },
+    sensorIconContainer: {
+        backgroundColor: '#f0f0f0',
+        borderRadius: 50,
+        padding: 10,
+        marginBottom: 10,
+    },
+    sensorIcon: {
+        width: 50,
+        height: 50,
+    },
+    sensorName: {
+        fontSize: 25,
+        fontWeight: 'bold',
+        color: 'black',
+        marginBottom: 10,
+    },
+    sensorDes: {
+        fontSize: 15,
+        color: '#767577',
+        marginBottom: 10,
     },
 });
 
